@@ -29,8 +29,8 @@ This repository is intended to be handed off as a Git repo. A new user should be
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url> malware-scanner
-cd malware-scanner
+git clone <your-repo-url> osm-dependency-scanner
+cd osm-dependency-scanner
 ```
 
 ### 2. Configure the API Key
