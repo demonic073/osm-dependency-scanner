@@ -1,0 +1,1 @@
+[package]\nname = "test-project"\nversion = "0.1.0"\n\n[dependencies]\nserde = "1.0.130"\n

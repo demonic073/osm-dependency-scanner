@@ -1,0 +1,1 @@
+simple-mali-pkg==1.0.0\nascii2text==1.0.0\nzlibxjson==1.0.0

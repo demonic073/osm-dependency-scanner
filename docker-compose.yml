@@ -1,0 +1,11 @@
+services:
+  scanner:
+    build: .
+    image: osm-scanner:latest
+    restart: unless-stopped
+    environment:
+      OSM_API_KEY: ${OSM_API_KEY}
+    volumes:
+      - ./projects:/projects:rw
+    entrypoint: ["tail"]
+    command: ["-f", "/dev/null"]
