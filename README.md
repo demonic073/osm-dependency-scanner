@@ -48,7 +48,7 @@ OSM_API_KEY=your_api_key_here
 ### 3. Build and Start the Scanner
 
 ```bash
-./manage.py rebuild
+./manage.sh rebuild
 ```
 
 ### 4. Run a Scan
@@ -62,19 +62,19 @@ git clone https://github.com/user/repo.git projects/my-app
 Scan everything under `projects/`:
 
 ```bash
-./manage.py scan
+./manage.sh scan
 ```
 
 Scan a single project folder such as `projects/my-app`:
 
 ```bash
-./manage.py scan my-app
+./manage.sh scan my-app
 ```
 
 Scan a remote repository URL:
 
 ```bash
-./manage.py repo "https://github.com/user/repo"
+./manage.sh repo "https://github.com/user/repo"
 ```
 
 ### Included Test Projects
@@ -89,11 +89,11 @@ This repository includes two local test projects under `projects/` for validatin
 You can use them directly:
 
 ```bash
-./manage.py scan test-project
-./manage.py scan malicious-test-project
+./manage.sh scan test-project
+./manage.sh scan malicious-test-project
 ```
 
-For real usage, clone your own repository into `projects/` and scan that folder with `./manage.py scan <project>`.
+For real usage, clone your own repository into `projects/` and scan that folder with `./manage.sh scan <project>`.
 
 ## 🖼 Screenshot Example	s
 
@@ -109,7 +109,7 @@ Infected scan example for `projects/malicious-test-project`:
 
 For handoff, keep the repository in this shape:
 
-- `manage.py`
+- `manage.sh`
   Main operator entrypoint for build, container lifecycle, and scans.
 - `docker-compose.yml`
   Defines the long-running scanner container and mounts `./projects` to `/projects`.
@@ -132,12 +132,12 @@ If you are handing this repo to another engineer, include:
 
 ## 🛠 Usage via Docker
 
-### `manage.py` Command Reference
+### `manage.sh` Command Reference
 
-`manage.py` is the main entrypoint for running the scanner through Docker Compose.
+`manage.sh` is the main entrypoint for running the scanner through Docker Compose.
 
 ```bash
-./manage.py
+./manage.sh
 ```
 
 Running it with no arguments opens an interactive menu with the same actions as the subcommands below.
@@ -145,61 +145,61 @@ Running it with no arguments opens an interactive menu with the same actions as 
 Available commands:
 
 ```bash
-./manage.py -h
-./manage.py --help
-./manage.py start
-./manage.py build
-./manage.py rebuild
-./manage.py scan
-./manage.py scan <project>
-./manage.py repo <url>
-./manage.py status
-./manage.py shell
+./manage.sh -h
+./manage.sh --help
+./manage.sh start
+./manage.sh build
+./manage.sh rebuild
+./manage.sh scan
+./manage.sh scan <project>
+./manage.sh repo <url>
+./manage.sh status
+./manage.sh shell
 ```
 
-- `./manage.py -h` or `./manage.py --help`
+- `./manage.sh -h` or `./manage.sh --help`
   Shows built-in command help and examples.
-- `./manage.py start`
+- `./manage.sh start`
   Starts the background `scanner` container with `docker compose up -d`.
-- `./manage.py build`
+- `./manage.sh build`
   Builds the scanner image without recreating the running container.
-- `./manage.py rebuild`
+- `./manage.sh rebuild`
   Recreates the scanner container and rebuilds the image. Use this after changing Docker, Node.js, or TypeScript sources.
-- `./manage.py scan`
+- `./manage.sh scan`
   Scans everything mounted under `projects/`.
-- `./manage.py scan <project>`
+- `./manage.sh scan <project>`
   Scans only `projects/<project>`.
-- `./manage.py repo <url>`
+- `./manage.sh repo <url>`
   Scans a repository URL through the OpenSourceMalware API.
-- `./manage.py status`
+- `./manage.sh status`
   Shows the current Docker Compose container status.
-- `./manage.py shell`
+- `./manage.sh shell`
   Opens a Bash shell inside the running scanner container.
 
 ### 1. Scan a Repository URL
 Run the scanner inside the container:
 ```bash
-./manage.py repo "https://github.com/user/repo"
+./manage.sh repo "https://github.com/user/repo"
 ```
 
 ### 2. Scan Local Code (Sandboxed)
 Simply place your project folder inside the local `projects/` directory, then run:
 
 ```bash
-./manage.py scan
+./manage.sh scan
 ```
 
 To scan a specific subfolder such as `projects/my-app`:
 
 ```bash
-./manage.py scan my-app
+./manage.sh scan my-app
 ```
 
 To test the scanner with the included fixtures:
 
 ```bash
-./manage.py scan test-project
-./manage.py scan malicious-test-project
+./manage.sh scan test-project
+./manage.sh scan malicious-test-project
 ```
 
 The manager starts a background scanner container and mounts your local `projects/` folder into it at `/projects`. You can copy or clone projects into `projects/` on your host machine, and the running scanner container will see them immediately.
@@ -213,7 +213,7 @@ For scan commands, a non-zero exit code is expected when malicious packages are 
 
 ## 🔍 How It Works
 
-1. **Self-Contained Build:** When you run `./manage.py rebuild`, Docker installs all dependencies and compiles the TypeScript code *inside* the container. Nothing is installed on your host machine.
+1. **Self-Contained Build:** When you run `./manage.sh rebuild`, Docker installs all dependencies and compiles the TypeScript code *inside* the container. Nothing is installed on your host machine.
 2. **Isolation:** The scanner runs as a non-privileged user inside the sandbox.
 3. **Detection:** The scanner identifies dependency files (`package.json`, `requirements.txt`, `go.mod`, `Cargo.toml`).
 4. **API Query:** It queries `api.opensourcemalware.com` for real-time threat data.
