@@ -2,7 +2,7 @@
 
 A powerful supply chain attack scanner that identifies malicious dependencies and repositories using real-time data from [OpenSourceMalware.com](https://opensourcemalware.com/).
 
-**No local Node.js or TypeScript installation required. Everything runs inside Docker.**
+**Docker is the primary path on Linux. macOS users should use the local Node.js path via `setup.sh` and `scan.sh` — Docker bind mounts are unreliable on macOS.**
 
 ## 📌 Overview
 
@@ -210,6 +210,79 @@ The manager starts a background scanner container and mounts your local `project
 - Exit code `1`: malicious content was detected, or the scanner hit an operational error such as a missing API key or invalid path.
 
 For scan commands, a non-zero exit code is expected when malicious packages are found.
+
+## 🍎 macOS Local Setup (Recommended for Mac)
+
+Docker bind mounts on macOS can prevent the scanner container from reading the `projects/` directory. Use the local Node.js path instead.
+
+### Prerequisites
+
+- Node.js (v18+)
+- npm
+- An OpenSourceMalware API key
+
+### 1. Clone and Enter the Repo
+
+```bash
+git clone <your-repo-url> osm-dependency-scanner
+cd osm-dependency-scanner
+```
+
+### 2. Configure the API Key
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set:
+
+```env
+OSM_API_KEY=your_api_key_here
+```
+
+The scanner reads `OSM_API_KEY` from your environment, so also export it in your shell if needed:
+
+```bash
+export $(grep -v '^#' .env | xargs)
+```
+
+### 3. Install and Build with `setup.sh`
+
+```bash
+./setup.sh
+```
+
+Select option **2) Install/Setup (macOS - Local Node.js)**.
+
+This runs `npm install` and compiles the TypeScript source to `dist/`.
+
+### 4. Scan with `scan.sh`
+
+```bash
+./scan.sh
+```
+
+Two modes available:
+
+**Scan a local project folder** (choose option 1):
+
+Prompts for a folder name inside `./projects/`. For example, if you have `projects/my-app`, enter `my-app`.
+
+```
+Enter the name of the project folder (inside ./projects): my-app
+```
+
+**Scan a remote repository URL** (choose option 2):
+
+```
+Enter Repository URL (e.g., https://github.com/user/repo.git): https://github.com/user/repo
+```
+
+### Cleanup
+
+Run `./setup.sh` again and select option **4) Uninstall/Cleanup (macOS - Local Node.js)** to remove `node_modules/` and `dist/`.
+
+---
 
 ## 🔍 How It Works
 
