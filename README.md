@@ -155,6 +155,7 @@ Available commands:
 ./manage.sh repo <url>
 ./manage.sh status
 ./manage.sh shell
+./manage.sh stop
 ```
 
 - `./manage.sh -h` or `./manage.sh --help`
@@ -175,6 +176,8 @@ Available commands:
   Shows the current Docker Compose container status.
 - `./manage.sh shell`
   Opens a Bash shell inside the running scanner container.
+- `./manage.sh stop`
+  Stops and removes the scanner container with `docker compose down`.
 
 ### 1. Scan a Repository URL
 Run the scanner inside the container:

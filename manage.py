@@ -77,6 +77,10 @@ def scan_repo(repo_url: str) -> None:
     compose("exec", "scanner", "node", "dist/index.js", "--repo", repo_url)
 
 
+def stop() -> None:
+    compose("down")
+
+
 def status() -> None:
     compose("ps")
 
@@ -96,6 +100,7 @@ def interactive() -> None:
     print(f"{green('6)')} Scan remote repository URL")
     print(f"{green('7)')} Container status")
     print(f"{green('8)')} Shell in scanner container")
+    print(f"{green('9)')} Stop scanner container")
 
     option = input(f"{yellow('Choose an option: ')}").strip()
     if option == "1":
@@ -122,6 +127,8 @@ def interactive() -> None:
         status()
     elif option == "8":
         shell()
+    elif option == "9":
+        stop()
     else:
         print(red("Invalid option."), file=sys.stderr)
         sys.exit(1)
@@ -167,6 +174,11 @@ def main() -> None:
         help="Open a shell in the scanner container",
         description="Open an interactive Bash shell inside the running scanner container.",
     )
+    subparsers.add_parser(
+        "stop",
+        help="Stop the scanner container",
+        description="Stop and remove the scanner container with Docker Compose.",
+    )
 
     scan_parser = subparsers.add_parser(
         "scan",
@@ -204,6 +216,8 @@ def main() -> None:
         status()
     elif args.command == "shell":
         shell()
+    elif args.command == "stop":
+        stop()
 
 
 if __name__ == "__main__":
