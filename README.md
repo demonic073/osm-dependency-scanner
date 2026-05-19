@@ -265,7 +265,7 @@ This runs `npm install` and compiles the TypeScript source to `dist/`.
 ./scan.sh
 ```
 
-Two modes available:
+Three modes available:
 
 **Scan a local project folder** (choose option 1):
 
@@ -280,6 +280,17 @@ Enter the name of the project folder (inside ./projects): my-app
 ```
 Enter Repository URL (e.g., https://github.com/user/repo.git): https://github.com/user/repo
 ```
+
+**Scan any path on disk** (choose option 3):
+
+Prompts for a full absolute path. Optionally scan all subdirectories recursively.
+
+```
+Enter the full path to scan: /opt/myapp
+Scan subdirectories recursively? [y/N]: y
+```
+
+Use recursive mode to scan directories containing multiple projects (e.g. an AUR build cache or monorepo). Directories named `node_modules`, `.git`, `vendor`, `.venv`, `__pycache__`, `target`, `dist`, and `build` are skipped automatically.
 
 ### Cleanup
 

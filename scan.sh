@@ -15,15 +15,16 @@ echo ""
 echo "Select scan mode:"
 echo "1) Scan a Specific Local Project"
 echo "2) Scan Remote Repository URL"
-echo "3) Exit"
+echo "3) Scan Any Path"
+echo "4) Exit"
 echo ""
-read -p "Enter choice [1-3]: " choice
+read -p "Enter choice [1-4]: " choice
 
 case $choice in
     1)
         echo -e "${YELLOW}Local Project Scan${NC}"
         read -p "Enter the name of the project folder (inside ./projects): " project_name
-        
+
         # Construct the path
         TARGET_PATH="./projects/$project_name"
 
@@ -47,6 +48,26 @@ case $choice in
         node dist/index.js --repo "$repo_url"
         ;;
     3)
+        echo -e "${YELLOW}Custom Path Scan${NC}"
+        read -p "Enter the full path to scan: " custom_path
+        if [ -z "$custom_path" ]; then
+            echo -e "${RED}Error: No path provided.${NC}"
+            exit 1
+        fi
+        if [ ! -d "$custom_path" ]; then
+            echo -e "${RED}Error: Directory '$custom_path' not found.${NC}"
+            exit 1
+        fi
+        read -p "Scan subdirectories recursively? [y/N]: " recursive_choice
+        if [[ "$recursive_choice" =~ ^[Yy]$ ]]; then
+            echo -e "${GREEN}Recursively scanning: $custom_path${NC}"
+            node dist/index.js --path "$custom_path" --recursive
+        else
+            echo -e "${GREEN}Scanning: $custom_path${NC}"
+            node dist/index.js --path "$custom_path"
+        fi
+        ;;
+    4)
         echo "Exiting..."
         exit 0
         ;;

@@ -53,11 +53,29 @@ def compose(*args: str) -> None:
     subprocess.run(compose_cmd() + list(args), cwd=ROOT, check=True)
 
 
+def sync_symlink_volumes() -> None:
+    projects = ROOT / "projects"
+    override = ROOT / "docker-compose.override.yml"
+    extra: list[str] = []
+    if projects.is_dir():
+        for entry in projects.iterdir():
+            if entry.is_symlink():
+                target = entry.resolve()
+                if target.exists():
+                    extra.append(f"      - {target}:{target}:rw")
+    if extra:
+        lines = ["services:", "  scanner:", "    volumes:"] + extra
+        override.write_text("\n".join(lines) + "\n")
+    elif override.exists():
+        override.unlink()
+
+
 def build() -> None:
     compose("build")
 
 
 def start() -> None:
+    sync_symlink_volumes()
     compose("up", "-d")
 
 

@@ -10,33 +10,45 @@ class OSMClient {
         this.baseUrl = 'https://api.opensourcemalware.com/functions/v1';
         this.apiKey = apiKey;
     }
-    async checkMalicious(pkg) {
-        try {
-            const isRepo = pkg.ecosystem === 'repository';
-            const response = await axios_1.default.get(`${this.baseUrl}/check-malicious`, {
-                params: {
-                    report_type: isRepo ? 'repository' : 'package',
-                    resource_identifier: pkg.name,
-                    ecosystem: isRepo ? undefined : pkg.ecosystem,
-                    version: pkg.version,
-                },
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                },
-            });
-            return {
-                is_malicious: !!response.data.malicious,
-                threat_type: response.data.details?.threat_id,
-                details: response.data.details?.description,
-                report_url: response.data.osm_url,
-            };
-        }
-        catch (error) {
-            if (error.response && error.response.status === 404) {
-                return { is_malicious: false };
+    async sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async checkMalicious(pkg, retries = 5) {
+        await this.sleep(100);
+        const isRepo = pkg.ecosystem === 'repository';
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                const response = await axios_1.default.get(`${this.baseUrl}/check-malicious`, {
+                    params: {
+                        report_type: isRepo ? 'repository' : 'package',
+                        resource_identifier: pkg.name,
+                        ecosystem: isRepo ? undefined : pkg.ecosystem,
+                        version: pkg.version,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${this.apiKey}`,
+                    },
+                });
+                return {
+                    is_malicious: !!response.data.malicious,
+                    threat_type: response.data.details?.threat_id,
+                    details: response.data.details?.description,
+                    report_url: response.data.osm_url,
+                };
             }
-            throw new Error(`API Request failed: ${error.message}`);
+            catch (error) {
+                if (error.response?.status === 404) {
+                    return { is_malicious: false };
+                }
+                if (error.response?.status === 429 && attempt < retries) {
+                    const delay = Math.pow(2, attempt) * 5000;
+                    await this.sleep(delay);
+                    continue;
+                }
+                throw new Error(`API Request failed: ${error.message}`);
+            }
         }
+        throw new Error('API Request failed: max retries exceeded');
     }
 }
 exports.OSMClient = OSMClient;

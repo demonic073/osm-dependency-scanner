@@ -23,6 +23,7 @@ program
     .option('-k, --api-key <key>', 'OSM API Key (overrides .env OSM_API_KEY)')
     .option('-r, --repo <url>', 'Specific repository URL to scan')
     .option('-c, --clone <url>', 'Clone a git repository and scan it')
+    .option('-R, --recursive', 'Recursively scan all subdirectories')
     .action(async (options) => {
     let projectPath = path_1.default.resolve(options.path);
     const apiKey = options.apiKey || process.env.OSM_API_KEY;
@@ -113,9 +114,33 @@ program
         console.error(picocolors_1.default.red(`Error: scan path is not a directory: ${projectPath}`));
         process.exit(1);
     }
+    const SKIP_DIRS = new Set(['node_modules', '.git', 'vendor', '.venv', '__pycache__', 'target', 'dist', 'build']);
+    async function collectDirs(dirPath) {
+        const dirs = [];
+        try {
+            const items = fs_1.default.readdirSync(dirPath, { withFileTypes: true });
+            for (const item of items) {
+                if (item.isDirectory() && !SKIP_DIRS.has(item.name)) {
+                    const sub = path_1.default.join(dirPath, item.name);
+                    dirs.push(sub);
+                    const nested = await collectDirs(sub);
+                    dirs.push(...nested);
+                }
+            }
+        }
+        catch (_) { }
+        return dirs;
+    }
     let results = await runScan(projectPath);
-    // If no packages found in root, check subdirectories
-    if (results.length === 0) {
+    if (options.recursive) {
+        console.log(picocolors_1.default.cyan(`Recursively scanning subdirectories of ${picocolors_1.default.white(projectPath)}...\n`));
+        const allDirs = await collectDirs(projectPath);
+        for (const dir of allDirs) {
+            const subResults = await runScan(dir);
+            results = [...results, ...subResults];
+        }
+    }
+    else if (results.length === 0) {
         const items = fs_1.default.readdirSync(projectPath, { withFileTypes: true });
         for (const item of items) {
             if (item.isDirectory()) {
